@@ -144,20 +144,23 @@ function PostPage() {
               </section>
             )}
 
-            {p.kind === "executor" && p.key_link && (
-              <section className="flex items-center justify-between rounded-lg border border-cyan/40 bg-cyan/5 p-4">
+            {(p.kind === "executor" || p.kind === "macro") && p.key_link && (
+              <section className="flex items-center justify-between rounded-xl border border-cyan/40 bg-cyan/5 p-4">
                 <div className="flex items-center gap-3 text-cyan">
                   <Vial size={20} />
                   <div>
-                    <p className="font-serif text-lg">Executor download</p>
-                    <p className="text-xs text-faded">Fetch the tool from its home page.</p>
+                    <p className="font-serif text-lg">
+                      {p.kind === "executor" ? "Executor download" : "Macro download"}
+                    </p>
+                    <p className="text-xs text-faded">Fetch the file from its home page.</p>
                   </div>
                 </div>
-                <a href={p.key_link} target="_blank" rel="noreferrer" className="btn-arcane rounded-md px-4 py-2 text-sm">
+                <a href={p.key_link} target="_blank" rel="noreferrer" className="btn-arcane rounded-lg px-4 py-2 text-sm">
                   Download
                 </a>
               </section>
             )}
+
 
             {p.kind !== "executor" && p.key_system && p.key_link && (
               <section className="flex items-center justify-between rounded-lg border border-sky/40 bg-sky/5 p-4">
