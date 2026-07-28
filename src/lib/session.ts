@@ -24,12 +24,18 @@ export function useSession() {
 export function useMe() {
   const session = useSession();
   const fetchCtx = useServerFn(getMyContext);
-  return useQuery({
+  const query = useQuery({
     queryKey: ["me", session?.user.id ?? null],
     queryFn: () => fetchCtx({ data: undefined as never }),
     enabled: !!session?.user,
     staleTime: 60_000,
   });
+  return {
+    ...query,
+    // While the session itself hasn't hydrated yet, treat as loading so guards
+    // don't bounce a signed-in user to /auth on first paint.
+    isLoading: session === undefined || (!!session?.user && query.isLoading),
+  };
 }
 
 export function useAuthActions() {
