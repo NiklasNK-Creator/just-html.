@@ -8,6 +8,7 @@ import { WaxSealShape, PadlockRune, GildedRune, Scroll, RuneSigil } from "@/comp
 import { BanRiskDialog } from "@/components/ban-risk-dialog";
 import { useState } from "react";
 import { KIND_LABEL } from "@/lib/post-schema";
+import { Markdown } from "@/components/markdown";
 
 export const Route = createFileRoute("/post/$id")({
   head: () => ({
@@ -139,11 +140,26 @@ function PostPage() {
           <div className="space-y-6">
             {p.description && (
               <section className="rounded-lg border border-border/60 bg-card/40 p-6">
-                <p className="whitespace-pre-wrap leading-relaxed text-ink/90">{p.description}</p>
+                <Markdown>{p.description}</Markdown>
               </section>
             )}
 
-            {p.key_system && p.key_link && (
+            {p.kind === "executor" && p.key_link && (
+              <section className="flex items-center justify-between rounded-lg border border-cyan/40 bg-cyan/5 p-4">
+                <div className="flex items-center gap-3 text-cyan">
+                  <Vial size={20} />
+                  <div>
+                    <p className="font-serif text-lg">Executor download</p>
+                    <p className="text-xs text-faded">Fetch the tool from its home page.</p>
+                  </div>
+                </div>
+                <a href={p.key_link} target="_blank" rel="noreferrer" className="btn-arcane rounded-md px-4 py-2 text-sm">
+                  Download
+                </a>
+              </section>
+            )}
+
+            {p.kind !== "executor" && p.key_system && p.key_link && (
               <section className="flex items-center justify-between rounded-lg border border-sky/40 bg-sky/5 p-4">
                 <div className="flex items-center gap-3 text-sky">
                   <PadlockRune size={20} />
