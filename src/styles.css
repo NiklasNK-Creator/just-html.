@@ -120,21 +120,63 @@
   h1, h2, h3, h4, .font-serif { font-family: var(--font-serif); letter-spacing: -0.01em; }
   ::selection { background-color: color-mix(in oklch, var(--cyan) 30%, transparent); }
   select, input, textarea { color-scheme: inherit; }
-  select {
+  select, [data-slot="select-trigger"] {
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%237fd1e4' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-repeat: no-repeat;
-    background-position: right 0.85rem center;
+    background-position: right 0.9rem center;
     padding-right: 2.2rem;
-    border-radius: 10px;
+    border-radius: 14px !important;
   }
   select option {
     background-color: var(--surface);
     color: var(--ink);
   }
-  input, textarea { border-radius: 10px; }
+  input, textarea { border-radius: 12px; }
+  [data-slot="select-content"], [data-radix-popper-content-wrapper] > * { border-radius: 14px !important; }
+  [data-slot="select-item"] { border-radius: 10px; }
 }
+
+/* ——— Shimmer sweep across cards ——— */
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg, transparent 30%, color-mix(in oklch, var(--cyan) 12%, transparent) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 900ms ease;
+  pointer-events: none;
+}
+.shimmer:hover::before { transform: translateX(120%); }
+
+/* ——— Ink reveal (text fades in like ink bleeding) ——— */
+@keyframes ink-reveal {
+  from { opacity: 0; filter: blur(6px); transform: translateY(6px); }
+  to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+}
+.animate-ink { animation: ink-reveal 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+/* ——— Rune circle slow rotation, floating ——— */
+@keyframes rune-orbit {
+  0%   { transform: rotate(0deg) translateY(0); }
+  50%  { transform: rotate(180deg) translateY(-8px); }
+  100% { transform: rotate(360deg) translateY(0); }
+}
+.animate-orbit { animation: rune-orbit 60s linear infinite; }
+
+/* ——— Candle flicker vignette ——— */
+@keyframes candle-flicker {
+  0%, 100% { opacity: 0.55; }
+  25%      { opacity: 0.7; }
+  40%      { opacity: 0.5; }
+  70%      { opacity: 0.65; }
+}
+.animate-flicker { animation: candle-flicker 6s ease-in-out infinite; }
+
 
 @utility wax-seal {
   clip-path: polygon(50% 0%, 80% 10%, 100% 35%, 100% 70%, 80% 90%, 50% 100%, 20% 90%, 0% 70%, 0% 35%, 20% 10%);
