@@ -227,7 +227,7 @@ function SubmitPage() {
             </div>
           )}
 
-          {(kind === "script" || kind === "macro") && (
+          {usesKeySystem && (
             <div className="rounded-md border border-border/70 bg-card/40 p-4">
               <label className="flex cursor-pointer items-center gap-3">
                 <input
@@ -246,13 +246,13 @@ function SubmitPage() {
                   value={keyLink}
                   onChange={(e) => setKeyLink(e.target.value)}
                   placeholder="https://linkvertise…"
-                  className="mt-3 w-full rounded-md border border-border/70 bg-base/40 px-3 py-2 text-ink outline-none focus:border-cyan"
+                  className="mt-3 w-full rounded-xl border border-border/70 bg-base/40 px-3 py-2 text-ink outline-none focus:border-cyan"
                 />
               )}
             </div>
           )}
 
-          {(kind === "script" || kind === "macro") && (
+          {usesLua && (
             <label className="block">
               <span className="mb-1 block text-xs uppercase tracking-widest text-faded">Luau incantation</span>
               <textarea
@@ -260,13 +260,13 @@ function SubmitPage() {
                 onChange={(e) => setLuaContent(e.target.value)}
                 rows={14}
                 spellCheck={false}
-                className="w-full rounded-md border border-border/70 bg-base/60 px-3 py-2 font-mono text-xs text-ink outline-none focus:border-cyan"
+                className="w-full rounded-xl border border-border/70 bg-base/60 px-3 py-2 font-mono text-xs text-ink outline-none focus:border-cyan"
                 placeholder="-- getgenv().Settings = { … }"
               />
             </label>
           )}
 
-          {kind === "executor" && (
+          {usesDownloadLink && (
             <label className="block">
               <span className="mb-1 block text-xs uppercase tracking-widest text-faded">Download link</span>
               <input
@@ -275,10 +275,11 @@ function SubmitPage() {
                 value={downloadLink}
                 onChange={(e) => setDownloadLink(e.target.value)}
                 placeholder="https://…"
-                className="w-full rounded-md border border-border/70 bg-card/50 px-3 py-2 text-ink outline-none focus:border-cyan"
+                className="w-full rounded-xl border border-border/70 bg-card/50 px-3 py-2 text-ink outline-none focus:border-cyan"
               />
             </label>
           )}
+
 
           {err && <p className="text-sm text-destructive">{err}</p>}
 
