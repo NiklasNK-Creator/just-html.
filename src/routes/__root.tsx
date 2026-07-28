@@ -77,10 +77,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Atelier of Scripts — a grimoire of Lua for Roblox" },
-      { name: "description", content: "Atelier of Scripts is a curated grimoire of Lua scripts, macros, and executors for Roblox, kept by trusted witches and their apprentices." },
+      { title: "Atelier of Scripts — a Luau grimoire for Roblox" },
+      { name: "description", content: "A witch's grimoire of Luau scripts, macros, executors and tutorials for Roblox, kept by a trusted coven of authors." },
       { property: "og:title", content: "Atelier of Scripts" },
-      { property: "og:description", content: "A grimoire of Lua scripts, macros, and executors for Roblox." },
+      { property: "og:description", content: "A Luau grimoire for Roblox — scripts, macros, executors, tutorials." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -90,9 +90,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+    ],
+    scripts: [
+      {
+        children: `(function(){try{var t=localStorage.getItem('atelier-theme')||'dark';document.documentElement.classList.add(t);}catch(e){document.documentElement.classList.add('dark');}})();`,
+      },
     ],
   }),
   shellComponent: RootShell,

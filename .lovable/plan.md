@@ -1,144 +1,100 @@
 
-# Atelier Archive — Build Plan
+## Ziel
+Seite deutlich dunkler & atmosphärischer, mit Theme-Toggle, echten Witch-Atelier-Icons, mehr Motion/WebGL-Vibe, korrekten Bezeichnungen ("Luau"), Executor/Tutorial nur für Admins, Bannrisiko-Warnung bei Scripts, funktionierendem Dashboard-Link und aktualisierten Buttons/Dropdowns.
 
-A mystical, candlelit-atelier hub where the community shares Lua scripts, macros, executors, and tutorials for Roblox games. Guests browse and download; signed-in users upload and react; admins moderate and publish executors.
+## Änderungen
 
-## Visual identity
+### 1. Theme & Farben (`src/styles.css`)
+- Basis noch dunkler: `--base` auf ~`oklch(0.09 0.02 240)` (fast schwarz mit kaltem Stich), `--surface` auf `oklch(0.13 0.02 235)`, `--border` gedämpfter.
+- Akzente (cyan/sky/moss) bleiben, aber nur für Details/Ränder/Glows.
+- Neuer **Light-Mode** unter `.light` Root-Klasse: warmes Pergament (`--base` cremeweiß, `--ink` tief-tinte, cyan/moss bleiben als Akzent). Toggle setzt Klasse auf `<html>` und persistiert in `localStorage`.
+- Dropdowns/Inputs: `border-radius: var(--radius-lg)` (10px) statt eckig, weiche innere Border, leichter Cyan-Focusring.
+- Buttons global: neue Utilities `btn-ghost`, `btn-soft`, `btn-arcane` — alle mit runder Kante + Halo statt harter Flächen.
 
-**Palette — cyan / light-blue / light-green arcane glow on deep night:**
-- `--base`  deep midnight `oklch(0.16 0.03 230)` (near-black with a cool blue cast)
-- `--surface` `oklch(0.21 0.03 220)`
-- `--border` `oklch(0.32 0.04 210)`
-- `--ink` `oklch(0.94 0.02 190)` (soft cyan-white body text)
-- `--faded` `oklch(0.66 0.03 200)`
-- `--cyan` `oklch(0.82 0.14 205)` — primary accent (runes, links, active state)
-- `--sky`  `oklch(0.86 0.09 230)` — secondary accent (icons, glows)
-- `--moss` `oklch(0.83 0.15 165)` — tertiary accent (trusted badge, upvote seal)
-- `--wax`  `oklch(0.78 0.16 175)` — downvote / warning-cool
+### 2. Theme-Toggle
+- Neue Komponente `src/components/theme-toggle.tsx`: Sun/Moon (bespoke SVG — Mondsichel mit Sternenpunkten / Sonnen-Rune), toggelt `.light` auf `document.documentElement`, speichert in `localStorage`, initial via kleinem Inline-Script im `__root.tsx` `head()` gegen FOUC.
+- Platzierung: im `SiteShell`-Header rechts neben Dashboard.
 
-**Typography** (loaded via `<link>` in `__root.tsx`): Crimson Pro (serif display, italic titles), Inter (sans body).
+### 3. Header / Buttons konsistent aktualisieren
+- `site-shell.tsx`: **Dashboard-Link Bug fixen** — aktuell `<Link to="/dashboard">`, prüfen und sicherstellen dass Route registriert ist / Klasse `halo-cyan` nicht Klick blockiert. Falls Route funktioniert, ist es evtl. reiner Style/z-index; explizit als `btn-soft` Button gestalten.
+- Alle noch nicht aktualisierten Buttons (Home-Tiles, Post-Card CTA, Auth-Formular Submit, Submit-Formular Buttons, Dashboard-Tabs, Admin-Aktions-Buttons) auf neue Button-Utilities umstellen — dunkler Grund, cyan Border/Glow als Detail, keine großen cyan Flächen.
 
-**Iconography — bespoke SVG first, Lucide second.** Ship a small in-house set under `src/components/icons/` built as React SVG components with `currentColor`:
-- `RuneSigil` (six-point star inside a circle) — brand mark
-- `WaxSeal` (organic 10-point polygon w/ inner ring) — upvote/downvote button chrome
-- `PadlockRune` — key-required indicator
-- `GildedRune` — trusted uploader badge (interlocking triangles)
-- `Astrolabe` — dashboard mark
-- `Grimoire` — scripts tab
-- `Vial` — macros tab
-- `Chalice` — executors tab
-- `Scroll` — tutorials tab
-- `MothWing` — decorative marginalia
-Everything else (search, chevrons, close, upload, ban, trash, edit) comes from **lucide-react**. **No emoji anywhere in UI copy**; if a glyph is needed inline it's an SVG. Roman-numeral counts stay (they're type, not emoji).
+### 4. Icons neu — echt Witch-Atelier
+`src/components/icons/rune-icons.tsx` neu zeichnen, weniger generisch:
+- `Astrolabe` → **Pentagram-in-Circle mit Wachs-Tropfen**
+- `RuneSigil` → **Auge in Dreieck mit Strahlen** (Sigil)
+- `Grimoire` → aufgeschlagenes Buch mit Rune-Seite + Lesebändchen
+- `Vial` → bauchiger Kolben mit brodelndem Dampf-Kringel
+- `Scroll` → gerollte Pergamentrolle mit hängendem Siegel
+- `Chalice` → Kelch mit brennender Flamme
+- `PadlockRune` → verschnörkeltes Vorhängeschloss mit Rune-Bogen
+- `GildedRune` → verwobene Triqueta
+- `WaxSealShape` → organischer, unregelmäßiger Wachsklecks (kein sauberes Polygon)
+- `MothWing` → detailliertere Motte mit Augenfleck-Muster
+- Neu: `Moon`, `Sun`, `Candle`, `Feather`
 
-**Magical effects:**
-- Ambient candle-glow radial gradient overlay swapped for a slow-drifting cyan-to-moss aurora at the top; SVG grain overlay for parchment feel
-- Hover on cards emits a soft cyan halo (`box-shadow: 0 0 40px -6px var(--cyan)/40`) and border shifts cyan
-- Wax-seal upvote animation: press → scale 1.15 with a burst of 4 short cyan stroke-lines fanning out (SVG, motion), then settle to 1.0
-- Route/tab transitions: cross-fade + 1px cyan underline sliding beneath the active tab
-- Rune sigils on empty states pulse a slow luminous breathing at 3s intervals
-- Cursor-follow parallax on the aurora, throttled
-- Card mount: `paper-in` (opacity 0→1, y 10→0, rotate ±0.4deg), staggered 40ms
-- All motion via **motion/react**, timings 200–500ms, no springy overshoot
+### 5. Animierter WebGL-Hintergrund
+- Neue Komponente `src/components/atelier-canvas.tsx`: kleiner WebGL-Shader (regl-frei, plain WebGL2 fragment shader) mit **driftendem Rauch/Aurora + subtile Kerzenlicht-Flackern-Blobs**, geringe Opazität, `pointer-events:none`, `<ClientOnly>` in `SiteShell`.
+- WebGL-Support-Check → Fallback auf bestehende CSS-Aurora.
+- Zusätzlich CSS-Layer: driftende Staubpartikel (SVG animiert) + Vignette.
 
-Ported from the chosen "Atelier Archive" direction: composition (top header, left codex sidebar, ornate search cartouche, 2-col post grid, sticky sidebar), wax-seal vote chrome, Crimson Pro italic titles, gilded-rune trust badge, padlock key-required chip. Only the palette and iconography change.
+### 6. Mehr Motion (motion/react)
+- Card-Hover: leichter tilt + intensivere cyan Halo-Pulsation.
+- Route-Wechsel: fade + 8px slide-up via `AnimatePresence` im `__root`.
+- Wax-Seal Vote: bestehende `seal-burst` verstärkt (4 SVG-Funken die rausfliegen).
+- Header-Nav Underline: sliding indicator mit `layoutId`.
+- Empty States: pulsierendes Sigil + langsam auf-/absteigende Rune-Symbole.
 
-## Routes (TanStack Start)
+### 7. Text-Copy entschärfen
+- „Corny" Sprache reduzieren: „candle-lit grimoire of Lua…" → knapper, ruhiger („A dark archive of Luau for Roblox. Scripts, macros, executors, tutorials.").
+- Alle Vorkommen **„Lua" → „Luau"** in UI-Copy (Titel, Beschreibungen, Meta-Descriptions, Placeholder). Datenbank-Feld/Variablen (`luaContent`) bleiben — nur UI-Text.
+- „Inscribe" → „Upload", „Bound in cyan & moss" Footer knapper, weniger Adjektive.
 
-```
-src/routes/
-  __root.tsx                       header + font links + aurora overlay + Outlet
-  index.tsx                        redirects to /scripts
-  scripts.tsx                      main browse (default tab)
-  macros.tsx
-  executors.tsx
-  tutorials.tsx
-  post.$id.tsx                     public post detail (Lua viewer, download, votes)
-  auth.tsx                         sign-in / sign-up (email+password + Google)
-  _authenticated/route.tsx         integration-managed gate
-  _authenticated/upload.tsx        upload flow (game-ID fetch, form)
-  _authenticated/dashboard.tsx     my uploads, my votes
-  _authenticated/admin.tsx         admin-only: ban/unban, role edit, delete
-  api/public/roblox-game.$id.ts    optional cached fetch endpoint
-```
+### 8. Zugriffsregeln für Kinds
+- **Tutorial** und **Executor** dürfen nur von Admins erstellt werden. Aktuell nur Executor.
+- `src/lib/posts.functions.ts` `createPost`: Server-Check erweitern — wenn `kind in ('executor','tutorial')` → `has_role('admin')` prüfen.
+- Migration: RLS `posts INSERT` Policy `WITH CHECK` erweitert auf beide Kinds.
+- Submit-UI (`submit.tsx`): Kind-Dropdown blendet Tutorial/Executor aus wenn kein Admin, mit Hinweis „Nur Admins".
 
-Each browse tab shares one `<BrowseShell>` component: sidebar codex index (auto-generated Roblox game categories with counts), search cartouche, filter chips (Latest, Most Reacted, Trusted, Key-System, Keyless), post grid. Active tab and filter chip use the cyan underline + halo.
+### 9. Bann-Risiko-Popup bei Scripts
+- Neue Komponente `src/components/ban-risk-dialog.tsx` (shadcn Dialog): erscheint beim **ersten Besuch von `/browse/script` oder eines Script-Post-Details**, Flag in `localStorage` (`atelier.banRiskAck.v1`).
+- Text: knapp und ernst — „Die Verwendung von Scripts in Roblox kann zu Account-Bann führen. Du nutzt sie auf eigenes Risiko."
+- Button „Verstanden" schließt und setzt Flag.
 
-## Data model (Lovable Cloud)
+### 10. DB Migration (dieses Project)
+- Neue Migration im aktuellen Cloud-Project applizieren:
+  - Schema aus `plan.md` (falls noch nicht vorhanden): profiles, user_roles, games, posts, post_votes, enums, `has_role`, `handle_new_user`, Score-Trigger, GRANTs, RLS.
+  - INSERT Policy für `posts`: `WITH CHECK (kind NOT IN ('executor','tutorial') OR has_role(auth.uid(),'admin'))`.
+  - Seed-Rows (2–3 Scripts, 1 Macro, 1 Executor, 1 Tutorial) als literale INSERTs damit die Seiten nicht leer wirken.
+- Falls Cloud noch nicht aktiv: erst `supabase--enable`, dann Migration.
 
-One migration creates schema, GRANTs, RLS, triggers, and demo seed rows:
+### 11. Tutorial- & Executor-Seiten differenzieren
+Da dort wenig Content sein wird:
+- `/browse/executor`: kein Grid, statt dessen **große Detail-Karten in einer Spalte** mit Version, Download-Button, „Verified by admin"-Banner (GildedRune), grüne Moss-Border.
+- `/browse/tutorial`: **magazin-artige Liste** (linkes Icon + Titel + langer Auszug), keine Banner-Bilder — wirkt bibliothekarisch statt Grid.
+- Gemeinsame `<BrowseShell>`-Route (`browse.$kind.tsx`) rendert bedingt `<ExecutorList>` / `<TutorialList>` / `<PostGrid>`.
 
-- `app_role` enum: `admin`, `trusted`, `user`
-- `post_kind` enum: `script`, `macro`, `executor`, `tutorial`
-- `profiles(id → auth.users, username, avatar_url, banned_at, banned_reason)` — auto-created via `handle_new_user()` trigger
-- `user_roles(id, user_id, role)` — separate table, `has_role()` security-definer function
-- `games(id, roblox_game_id bigint UNIQUE nullable, name, banner_url, description, indexed_at)`
-- `posts(id, kind, title, description, game_id nullable, custom_banner_url nullable, key_system boolean, key_link nullable, lua_content text, author_id, created_at, updated_at, deleted_at)`
-- `post_votes(post_id, user_id, value smallint check in (-1,1), PK(post_id,user_id))`
-- `posts.score` maintained via trigger on `post_votes`
+### 12. Dashboard-Button-Fix (konkret)
+- Vermutung: `<Link to="/dashboard">` funktioniert; falls nach Klick nichts passiert, prüfen ob `Dashboard`-Route Guards blockieren oder ob `me` initial `undefined` einen `<Navigate>`-Loop macht.
+- Falls Loop: `useMe` `isLoading` abwarten und **erst dann** navigieren; sonst redirect `/auth`.
+- Sicherstellen dass Link ein echter Router-Link mit `to`-Prop bleibt und keine überliegende Fläche Clicks abfängt.
 
-RLS:
-- `posts` — public SELECT where `deleted_at IS NULL`; INSERT by authenticated non-banned users; executors require `has_role('admin')` in the `WITH CHECK`; UPDATE/DELETE by author or admin
-- `post_votes` — INSERT/UPDATE/DELETE by owner; SELECT authenticated
-- `user_roles` — SELECT authenticated; admin-only writes
-- `games` — SELECT public; INSERT by authenticated; UPDATE by admin
-- `profiles` — SELECT public; UPDATE own; admin updates `banned_at`
+## Technischer Bereich
+- Keine neuen Deps außer ggf. `motion` (falls noch nicht drin). WebGL via plain API, kein three.js.
+- WebGL-Shader klein halten (~40 Zeilen GLSL), Frame-Rate throttled auf 30fps via `requestAnimationFrame` + Skip.
+- Theme-Toggle FOUC-Vermeidung via `<script>` in `__root.tsx` `head().scripts`, das vor Hydration `localStorage.getItem('atelier.theme')` liest.
+- Migration in einer einzigen SQL-Datei, inkl. GRANTs für `authenticated`/`anon`/`service_role`.
+- Alle Files nur Frontend + Migration; Business-Logik-Change nur Server-Check + Policy für tutorial/executor.
 
-Storage bucket `banners` (public) for custom banner uploads. Lua stored as text on `posts`.
-
-## Server functions
-
-- `fetchRobloxGame({ gameId })` — public, calls Roblox `games.roblox.com/v1/games` + `thumbnails.roblox.com/v1/games/icons`, caches to `games` (24h `indexed_at`), returns `{ name, description, banner_url }`
-- `createPost` — auth-required; executor kind requires admin role in server-side check
-- `votePost({ postId, value })` — auth-required upsert
-- `listPosts({ kind, sort, filters, search, gameId })` — public, via server publishable client
-- Admin: `banUser`, `unbanUser`, `setRole`, `deletePost` — auth + `has_role('admin')`
-
-Public routes read via `ensureQueryData` + `useSuspenseQuery`; protected calls via `useServerFn` under the managed `_authenticated/` gate. Zod validates every input (title ≤200, description ≤2000, Lua ≤500KB, key_link is URL).
-
-## Auth
-
-Email/password + Google (via `lovable.auth.signInWithOAuth('google', …)`) on public `/auth`. Header shows "Sign In" text link when signed out; when signed in, a `RuneSigil` avatar dropdown (Dashboard, Admin if role, Sign out). Root `onAuthStateChange` filtered to SIGNED_IN/SIGNED_OUT/USER_UPDATED. Sign-out follows cache-teardown hygiene.
-
-Access matrix:
-- Guest: read + download + copy Lua
-- Signed-in: also upload scripts/macros/tutorials + vote
-- Admin: also upload executors + moderate
-
-## Search & filters
-
-- Debounced search bar; queries `title` / `description` / game name / category, scoped to the current tab's `kind`
-- Filter chips write to URL search params (`validateSearch` + `fallback`): `sort` (latest | top), `trusted`, `key` (any | required | none)
-- Sidebar "Codex Index" lists games (via `has post of this kind` count) for the current tab; clicking narrows to that game
-
-## SEO / head metadata
-
-Every route defines its own `head()`:
-- `/scripts` — "Scripts — Atelier Archive"
-- `/macros` — "Macros — Atelier Archive"
-- `/executors` — "Executors — Atelier Archive"
-- `/tutorials` — "Tutorials — Atelier Archive"
-- `/post/$id` — post title + description; og:image = banner URL
-
-Root drops the "Lovable App" placeholder.
-
-## Technical notes
-
-- Tailwind v4 tokens in `src/styles.css` under `@theme`; `wax-seal` clip-path and `aurora-drift` keyframes as `@utility`/`@keyframes`
-- Roblox API called only server-side, cached in DB
-- Lua syntax-highlighted with `shiki` (WASM) on detail page, lazy-loaded behind `<ClientOnly>`
-- Trusted badge (`GildedRune`) shown when author has `trusted` or `admin` role
-- No emoji in source; icons are SVG components or `lucide-react`
-
-## Build order
-
-1. Enable Lovable Cloud; apply schema migration + demo seed
-2. Design tokens, root layout, header, aurora overlay, font links, in-house SVG icon set
-3. Auth route + protected layout composition
-4. `<BrowseShell>` + card + wax-seal + filters + URL search params
-5. `/scripts`, `/macros`, `/executors`, `/tutorials` wired to `listPosts`
-6. Roblox game fetch server fn + upload page
-7. Post detail (Lua viewer, votes, download)
-8. Dashboard (my uploads / votes)
-9. Admin page (ban/unban, role, delete)
-10. Motion polish (aurora, seal burst, halos) + SEO head() per route
+## Baureihenfolge
+1. Migration + Cloud-Check
+2. Icons neu zeichnen
+3. Farbtokens dunkler + Light-Mode + Radius + Dropdown-Styles
+4. Theme-Toggle + FOUC-Script
+5. WebGL-Canvas Hintergrund + Fallback
+6. SiteShell/Header inkl. Dashboard-Fix, alle Buttons auf neue Utilities
+7. Home / Post-Card / Auth / Submit / Dashboard Texte + Buttons + „Luau"
+8. Tutorial/Admin-Check server + UI
+9. Executor- und Tutorial-Layout differenzieren
+10. Ban-Risk-Dialog
+11. Motion-Polish (route transitions, hover, seal burst)

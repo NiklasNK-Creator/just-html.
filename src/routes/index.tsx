@@ -1,24 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/site-shell";
-import { Astrolabe, Grimoire, Scroll, Vial, RuneSigil, WaxSealShape } from "@/components/icons/rune-icons";
+import { Astrolabe, Grimoire, Scroll, Vial, Chalice, RuneSigil, WaxSealShape } from "@/components/icons/rune-icons";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Atelier of Scripts — Roblox Lua Grimoire" },
-      { name: "description", content: "A candle-lit grimoire of Lua scripts, macros, and executors for Roblox, kept by trusted witches." },
+      { title: "Atelier of Scripts — Roblox Luau Grimoire" },
+      { name: "description", content: "A witch's grimoire of Luau scripts, macros, executors and tutorials for Roblox, kept by a trusted coven." },
       { property: "og:title", content: "Atelier of Scripts" },
-      { property: "og:description", content: "Roblox Lua scripts, macros, and executors, curated by trusted authors." },
+      { property: "og:description", content: "Roblox Luau scripts, macros, executors and tutorials — curated by a trusted coven." },
     ],
   }),
   component: Home,
 });
 
 const TILES = [
-  { to: "/browse/script", label: "Scripts", Icon: Scroll, blurb: "Inscribed cantrips for Roblox worlds." },
-  { to: "/browse/macro", label: "Macros", Icon: RuneSigil, blurb: "Silent gestures, repeated at will." },
-  { to: "/browse/executor", label: "Executors", Icon: Vial, blurb: "Vessels handed down by the atelier's admins." },
-  { to: "/browse/tutorial", label: "Tutorials", Icon: Grimoire, blurb: "Pages from the apprentices' journals." },
+  { to: "/browse/script", label: "Scripts", Icon: Scroll, blurb: "Luau inscriptions for Roblox — bound and sealed." },
+  { to: "/browse/macro", label: "Macros", Icon: Vial, blurb: "Silent gestures brewed to repeat themselves." },
+  { to: "/browse/executor", label: "Executors", Icon: Chalice, blurb: "Vessels vetted and released by the coven's admins." },
+  { to: "/browse/tutorial", label: "Tutorials", Icon: Grimoire, blurb: "Field notes from the atelier's own hand." },
 ];
 
 function Home() {
@@ -34,8 +34,8 @@ function Home() {
             Atelier of Scripts
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-balance text-faded">
-            A candle-lit archive of Lua — scripts, macros, executors and tutorials — bound
-            together by the witches of the atelier and marked with wax seals of trust.
+            A quiet archive of Luau — scripts, macros, executors and tutorials — bound by the
+            coven and marked with wax seals of trust. Read the code before you run it.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link to="/browse/script" className="btn-arcane rounded-md px-5 py-2.5 font-medium">
