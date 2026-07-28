@@ -1,3 +1,4 @@
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -29,7 +30,7 @@ export function MarkdownEditor({
   rows?: number;
   placeholder?: string;
 }) {
-  const [mode, setMode] = (require("react") as typeof import("react")).useState<"write" | "preview">("write");
+  const [mode, setMode] = useState<"write" | "preview">("write");
   return (
     <div className="rounded-md border border-border/70 bg-card/50">
       <div className="flex items-center gap-1 border-b border-border/60 px-2 py-1.5 text-xs">
@@ -53,7 +54,9 @@ export function MarkdownEditor({
         >
           Preview
         </button>
-        <span className="ml-auto text-[10px] uppercase tracking-widest text-faded">Markdown · **bold** _italic_ [link](url)</span>
+        <span className="ml-auto text-[10px] uppercase tracking-widest text-faded">
+          Markdown · **bold** _italic_ [link](url)
+        </span>
       </div>
       {mode === "write" ? (
         <textarea
@@ -65,11 +68,7 @@ export function MarkdownEditor({
         />
       ) : (
         <div className="min-h-[8rem] px-3 py-2">
-          {value.trim() ? (
-            <Markdown>{value}</Markdown>
-          ) : (
-            <p className="text-sm text-faded">Nothing to preview yet.</p>
-          )}
+          {value.trim() ? <Markdown>{value}</Markdown> : <p className="text-sm text-faded">Nothing to preview yet.</p>}
         </div>
       )}
     </div>
