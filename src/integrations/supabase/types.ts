@@ -14,16 +14,195 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      games: {
+        Row: {
+          banner_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          indexed_at: string
+          name: string
+          roblox_game_id: number | null
+        }
+        Insert: {
+          banner_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          indexed_at?: string
+          name: string
+          roblox_game_id?: number | null
+        }
+        Update: {
+          banner_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          indexed_at?: string
+          name?: string
+          roblox_game_id?: number | null
+        }
+        Relationships: []
+      }
+      post_votes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          created_at: string
+          custom_banner_url: string | null
+          deleted_at: string | null
+          description: string
+          downvotes: number
+          game_id: string | null
+          id: string
+          key_link: string | null
+          key_system: boolean
+          kind: Database["public"]["Enums"]["post_kind"]
+          lua_content: string
+          score: number
+          title: string
+          updated_at: string
+          upvotes: number
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          custom_banner_url?: string | null
+          deleted_at?: string | null
+          description?: string
+          downvotes?: number
+          game_id?: string | null
+          id?: string
+          key_link?: string | null
+          key_system?: boolean
+          kind: Database["public"]["Enums"]["post_kind"]
+          lua_content?: string
+          score?: number
+          title: string
+          updated_at?: string
+          upvotes?: number
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          custom_banner_url?: string | null
+          deleted_at?: string | null
+          description?: string
+          downvotes?: number
+          game_id?: string | null
+          id?: string
+          key_link?: string | null
+          key_system?: boolean
+          kind?: Database["public"]["Enums"]["post_kind"]
+          lua_content?: string
+          score?: number
+          title?: string
+          updated_at?: string
+          upvotes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          banned_at: string | null
+          banned_reason: string | null
+          created_at: string
+          id: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          banned_at?: string | null
+          banned_reason?: string | null
+          created_at?: string
+          id: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          banned_at?: string | null
+          banned_reason?: string | null
+          created_at?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      recompute_post_score: { Args: { _post_id: string }; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "trusted" | "user"
+      post_kind: "script" | "macro" | "executor" | "tutorial"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +329,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "trusted", "user"],
+      post_kind: ["script", "macro", "executor", "tutorial"],
+    },
   },
 } as const
