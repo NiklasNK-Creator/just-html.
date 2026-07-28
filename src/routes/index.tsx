@@ -38,7 +38,7 @@ function Home() {
             together by the witches of the atelier and marked with wax seals of trust.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/browse/script" className="rounded-md bg-cyan px-5 py-2.5 font-medium text-base halo-cyan">
+            <Link to="/browse/script" className="btn-arcane rounded-md px-5 py-2.5 font-medium">
               Open the grimoire
             </Link>
             <Link

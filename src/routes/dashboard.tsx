@@ -57,7 +57,7 @@ function DashboardPage() {
             )}
           </div>
         </div>
-        <Link to="/submit" className="rounded-md bg-cyan px-4 py-2 text-sm font-medium text-base halo-cyan">
+        <Link to="/submit" className="btn-arcane rounded-md px-4 py-2 text-sm font-medium">
           Inscribe
         </Link>
       </div>
@@ -231,7 +231,7 @@ function RoleCard() {
       <button
         onClick={() => setMut.mutate()}
         disabled={!name || setMut.isPending}
-        className="rounded-md bg-cyan px-3 py-2 text-sm font-medium text-base disabled:opacity-50"
+        className="btn-arcane rounded-md px-3 py-2 text-sm font-medium disabled:opacity-50"
       >
         Apply
       </button>
