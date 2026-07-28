@@ -69,7 +69,7 @@ function SubmitPage() {
   }
   if (!me) return <Navigate to="/auth" />;
 
-  const canPickKind = (k: PostKind) => (k === "executor" ? me.isAdmin : true);
+  const canPickKind = (k: PostKind) => (k === "executor" || k === "tutorial" ? me.isAdmin : true);
   const needsGame = kind === "script" || kind === "macro";
 
   const KindIcon = { script: Scroll, macro: RuneSigil, executor: Vial, tutorial: Grimoire }[kind];
@@ -113,7 +113,9 @@ function SubmitPage() {
                   >
                     <Icon size={22} />
                     <span>{KIND_SINGULAR[k]}</span>
-                    {k === "executor" && !me.isAdmin && <span className="text-[10px] text-faded">admin only</span>}
+                    {(k === "executor" || k === "tutorial") && !me.isAdmin && (
+                      <span className="text-[10px] text-faded">admin only</span>
+                    )}
                   </button>
                 );
               })}
