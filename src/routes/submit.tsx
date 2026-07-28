@@ -7,6 +7,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createPost, fetchRobloxGame } from "@/lib/posts.functions";
 import { POST_KINDS, KIND_SINGULAR, type PostKind } from "@/lib/post-schema";
 import { PadlockRune, Vial, Scroll, RuneSigil, Grimoire } from "@/components/icons/rune-icons";
+import { MarkdownEditor } from "@/components/markdown";
 
 export const Route = createFileRoute("/submit")({
   head: () => ({
@@ -18,17 +19,21 @@ export const Route = createFileRoute("/submit")({
   component: SubmitPage,
 });
 
+type BannerMode = "roblox" | "custom";
+
 function SubmitPage() {
   const { data: me, isLoading } = useMe();
   const navigate = useNavigate();
   const [kind, setKind] = useState<PostKind>("script");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [bannerMode, setBannerMode] = useState<BannerMode>("roblox");
   const [robloxGameId, setRobloxGameId] = useState("");
   const [customBannerUrl, setCustomBannerUrl] = useState("");
   const [keySystem, setKeySystem] = useState(false);
   const [keyLink, setKeyLink] = useState("");
   const [luaContent, setLuaContent] = useState("");
+  const [downloadLink, setDownloadLink] = useState("");
   const [err, setErr] = useState<string | null>(null);
 
   const fetchGame = useServerFn(fetchRobloxGame);
@@ -37,10 +42,12 @@ function SubmitPage() {
   const gamePreview = useQuery({
     queryKey: ["preview-game", robloxGameId],
     queryFn: () => fetchGame({ data: { gameId: robloxGameId } }),
-    enabled: /^\d+$/.test(robloxGameId),
+    enabled: bannerMode === "roblox" && /^\d+$/.test(robloxGameId),
     staleTime: 5 * 60_000,
     retry: false,
   });
+
+  const usesBanner = kind === "script" || kind === "macro";
 
   const create = useMutation({
     mutationFn: () =>
@@ -49,11 +56,11 @@ function SubmitPage() {
           kind,
           title,
           description,
-          robloxGameId: robloxGameId || undefined,
-          customBannerUrl: customBannerUrl || undefined,
-          keySystem,
-          keyLink: keyLink || undefined,
-          luaContent,
+          robloxGameId: usesBanner && bannerMode === "roblox" ? robloxGameId || undefined : undefined,
+          customBannerUrl: usesBanner && bannerMode === "custom" ? customBannerUrl || undefined : undefined,
+          keySystem: kind === "script" || kind === "macro" ? keySystem : false,
+          keyLink: kind === "executor" ? downloadLink || undefined : keySystem ? keyLink || undefined : undefined,
+          luaContent: kind === "script" || kind === "macro" ? luaContent : "",
         },
       }),
     onError: (e: Error) => setErr(e.message),
@@ -70,7 +77,6 @@ function SubmitPage() {
   if (!me) return <Navigate to="/auth" />;
 
   const canPickKind = (k: PostKind) => (k === "executor" || k === "tutorial" ? me.isAdmin : true);
-  const needsGame = kind === "script" || kind === "macro";
 
   const KindIcon = { script: Scroll, macro: RuneSigil, executor: Vial, tutorial: Grimoire }[kind];
 
@@ -134,83 +140,114 @@ function SubmitPage() {
             />
           </label>
 
-          <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-widest text-faded">Description</span>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              className="w-full rounded-md border border-border/70 bg-card/50 px-3 py-2 text-ink outline-none focus:border-cyan"
-            />
-          </label>
-
-          {kind !== "executor" && (
-            <label className="block">
-              <span className="mb-1 block text-xs uppercase tracking-widest text-faded">
-                Roblox game / place ID{needsGame ? "" : " (optional)"}
-              </span>
-              <input
-                inputMode="numeric"
-                pattern="\d*"
-                value={robloxGameId}
-                onChange={(e) => setRobloxGameId(e.target.value.replace(/\D/g, ""))}
-                placeholder="e.g. 920587237"
-                className="w-full rounded-md border border-border/70 bg-card/50 px-3 py-2 text-ink outline-none focus:border-cyan"
-              />
-              {gamePreview.isFetching && <p className="mt-2 text-xs text-faded">Divining the game…</p>}
-              {gamePreview.data && (
-                <div className="mt-3 flex items-center gap-3 rounded-md border border-border/60 bg-base/40 p-3">
-                  {gamePreview.data.banner_url && (
-                    <img src={gamePreview.data.banner_url} alt="" className="h-14 w-14 rounded object-cover" />
-                  )}
-                  <div>
-                    <p className="font-serif text-ink">{gamePreview.data.name}</p>
-                    <p className="line-clamp-2 text-xs text-faded">{gamePreview.data.description}</p>
-                  </div>
-                </div>
-              )}
-            </label>
-          )}
-
-          <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-widest text-faded">
-              Custom banner URL (optional — overrides the game banner)
-            </span>
-            <input
-              type="url"
-              value={customBannerUrl}
-              onChange={(e) => setCustomBannerUrl(e.target.value)}
-              placeholder="https://…"
-              className="w-full rounded-md border border-border/70 bg-card/50 px-3 py-2 text-ink outline-none focus:border-cyan"
-            />
-          </label>
-
-          <div className="rounded-md border border-border/70 bg-card/40 p-4">
-            <label className="flex cursor-pointer items-center gap-3">
-              <input
-                type="checkbox"
-                checked={keySystem}
-                onChange={(e) => setKeySystem(e.target.checked)}
-                className="h-4 w-4 accent-cyan"
-              />
-              <PadlockRune size={18} className="text-sky" />
-              <span className="text-sm text-ink">Uses a key system</span>
-            </label>
-            {keySystem && (
-              <input
-                type="url"
-                required
-                value={keyLink}
-                onChange={(e) => setKeyLink(e.target.value)}
-                placeholder="https://linkvertise…"
-                className="mt-3 w-full rounded-md border border-border/70 bg-base/40 px-3 py-2 text-ink outline-none focus:border-cyan"
-              />
-            )}
+          <div>
+            <p className="mb-1 text-xs uppercase tracking-widest text-faded">Description (markdown)</p>
+            <MarkdownEditor value={description} onChange={setDescription} rows={6} placeholder="Describe your page…" />
           </div>
 
-          {kind !== "tutorial" && (
+          {usesBanner && (
+            <div>
+              <p className="mb-2 text-xs uppercase tracking-widest text-faded">Banner</p>
+              <div className="mb-3 inline-flex rounded-md border border-border/70 bg-card/40 p-1 text-sm">
+                <button
+                  type="button"
+                  onClick={() => setBannerMode("roblox")}
+                  className={
+                    "rounded px-3 py-1.5 transition-colors " +
+                    (bannerMode === "roblox" ? "bg-cyan/15 text-cyan" : "text-faded hover:text-ink")
+                  }
+                >
+                  Roblox game
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBannerMode("custom")}
+                  className={
+                    "rounded px-3 py-1.5 transition-colors " +
+                    (bannerMode === "custom" ? "bg-cyan/15 text-cyan" : "text-faded hover:text-ink")
+                  }
+                >
+                  Custom URL
+                </button>
+              </div>
+
+              {bannerMode === "roblox" ? (
+                <label className="block">
+                  <span className="mb-1 block text-xs uppercase tracking-widest text-faded">
+                    Roblox game / place ID
+                  </span>
+                  <input
+                    inputMode="numeric"
+                    pattern="\d*"
+                    value={robloxGameId}
+                    onChange={(e) => setRobloxGameId(e.target.value.replace(/\D/g, ""))}
+                    placeholder="e.g. 920587237"
+                    className="w-full rounded-md border border-border/70 bg-card/50 px-3 py-2 text-ink outline-none focus:border-cyan"
+                  />
+                  {gamePreview.isFetching && <p className="mt-2 text-xs text-faded">Divining the game…</p>}
+                  {gamePreview.data && (
+                    <div className="mt-3 flex items-center gap-3 rounded-md border border-border/60 bg-base/40 p-3">
+                      {gamePreview.data.banner_url && (
+                        <img src={gamePreview.data.banner_url} alt="" className="h-14 w-14 rounded object-cover" />
+                      )}
+                      <div>
+                        <p className="font-serif text-ink">{gamePreview.data.name}</p>
+                        <p className="line-clamp-2 text-xs text-faded">{gamePreview.data.description}</p>
+                      </div>
+                    </div>
+                  )}
+                </label>
+              ) : (
+                <label className="block">
+                  <span className="mb-1 block text-xs uppercase tracking-widest text-faded">Custom banner URL</span>
+                  <input
+                    type="url"
+                    value={customBannerUrl}
+                    onChange={(e) => setCustomBannerUrl(e.target.value)}
+                    placeholder="https://…"
+                    className="w-full rounded-md border border-border/70 bg-card/50 px-3 py-2 text-ink outline-none focus:border-cyan"
+                  />
+                  {customBannerUrl && (
+                    <img
+                      src={customBannerUrl}
+                      alt=""
+                      className="mt-3 h-32 w-full rounded-md border border-border/60 object-cover"
+                      onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
+                    />
+                  )}
+                </label>
+              )}
+            </div>
+          )}
+
+          {(kind === "script" || kind === "macro") && (
+            <div className="rounded-md border border-border/70 bg-card/40 p-4">
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={keySystem}
+                  onChange={(e) => setKeySystem(e.target.checked)}
+                  className="h-4 w-4 accent-cyan"
+                />
+                <PadlockRune size={18} className="text-sky" />
+                <span className="text-sm text-ink">Uses a key system</span>
+              </label>
+              {keySystem && (
+                <input
+                  type="url"
+                  required
+                  value={keyLink}
+                  onChange={(e) => setKeyLink(e.target.value)}
+                  placeholder="https://linkvertise…"
+                  className="mt-3 w-full rounded-md border border-border/70 bg-base/40 px-3 py-2 text-ink outline-none focus:border-cyan"
+                />
+              )}
+            </div>
+          )}
+
+          {(kind === "script" || kind === "macro") && (
             <label className="block">
-              <span className="mb-1 block text-xs uppercase tracking-widest text-faded">Lua incantation</span>
+              <span className="mb-1 block text-xs uppercase tracking-widest text-faded">Luau incantation</span>
               <textarea
                 value={luaContent}
                 onChange={(e) => setLuaContent(e.target.value)}
@@ -218,6 +255,20 @@ function SubmitPage() {
                 spellCheck={false}
                 className="w-full rounded-md border border-border/70 bg-base/60 px-3 py-2 font-mono text-xs text-ink outline-none focus:border-cyan"
                 placeholder="-- getgenv().Settings = { … }"
+              />
+            </label>
+          )}
+
+          {kind === "executor" && (
+            <label className="block">
+              <span className="mb-1 block text-xs uppercase tracking-widest text-faded">Download link</span>
+              <input
+                type="url"
+                required
+                value={downloadLink}
+                onChange={(e) => setDownloadLink(e.target.value)}
+                placeholder="https://…"
+                className="w-full rounded-md border border-border/70 bg-card/50 px-3 py-2 text-ink outline-none focus:border-cyan"
               />
             </label>
           )}
