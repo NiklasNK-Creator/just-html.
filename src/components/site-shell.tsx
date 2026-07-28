@@ -65,7 +65,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 </Link>
                 <Link
                   to="/submit"
-                  className="rounded-md bg-cyan px-3 py-1.5 text-sm font-medium text-base halo-cyan"
+                  className="btn-arcane rounded-md px-3 py-1.5 text-sm font-medium"
                 >
                   Inscribe
                 </Link>

@@ -232,7 +232,7 @@ function SubmitPage() {
             </button>
             <button
               disabled={create.isPending}
-              className="flex items-center gap-2 rounded-md bg-cyan px-5 py-2.5 font-medium text-base halo-cyan disabled:opacity-60"
+              className="btn-arcane flex items-center gap-2 rounded-md px-5 py-2.5 font-medium disabled:opacity-60"
             >
               <KindIcon size={16} /> Inscribe
             </button>
