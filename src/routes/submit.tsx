@@ -47,7 +47,10 @@ function SubmitPage() {
     retry: false,
   });
 
-  const usesBanner = kind === "script" || kind === "macro";
+  const usesBanner = kind === "script";
+  const usesLua = kind === "script";
+  const usesKeySystem = kind === "script";
+  const usesDownloadLink = kind === "macro" || kind === "executor";
 
   const create = useMutation({
     mutationFn: () =>
@@ -58,9 +61,13 @@ function SubmitPage() {
           description,
           robloxGameId: usesBanner && bannerMode === "roblox" ? robloxGameId || undefined : undefined,
           customBannerUrl: usesBanner && bannerMode === "custom" ? customBannerUrl || undefined : undefined,
-          keySystem: kind === "script" || kind === "macro" ? keySystem : false,
-          keyLink: kind === "executor" ? downloadLink || undefined : keySystem ? keyLink || undefined : undefined,
-          luaContent: kind === "script" || kind === "macro" ? luaContent : "",
+          keySystem: usesKeySystem ? keySystem : false,
+          keyLink: usesDownloadLink
+            ? downloadLink || undefined
+            : usesKeySystem && keySystem
+              ? keyLink || undefined
+              : undefined,
+          luaContent: usesLua ? luaContent : "",
         },
       }),
     onError: (e: Error) => setErr(e.message),
