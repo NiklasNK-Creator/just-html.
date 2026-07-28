@@ -134,8 +134,10 @@
     color: var(--ink);
   }
   input, textarea { border-radius: 12px; }
-  [data-slot="select-content"], [data-radix-popper-content-wrapper] > * { border-radius: 14px !important; }
-  [data-slot="select-item"] { border-radius: 10px; }
+  [data-slot="select-content"], [data-radix-popper-content-wrapper] > * { border-radius: 20px !important; overflow: hidden; }
+  [data-slot="select-item"] { border-radius: 12px; }
+  [data-radix-popper-content-wrapper] { overflow: visible; }
+  [role="menu"], [role="listbox"], [role="dialog"], [role="tooltip"] { border-radius: 20px; }
 }
 
 /* ——— Shimmer sweep across cards ——— */
