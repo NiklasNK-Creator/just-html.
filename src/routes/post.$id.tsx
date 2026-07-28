@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPost, votePost, getMyVote, deletePost, adminDeletePost } from "@/lib/posts.functions";
 import { useMe } from "@/lib/session";
-import { WaxSealShape, PadlockRune, GildedRune, Scroll, RuneSigil } from "@/components/icons/rune-icons";
+import { WaxSealShape, PadlockRune, GildedRune, Scroll, RuneSigil, Vial } from "@/components/icons/rune-icons";
 import { BanRiskDialog } from "@/components/ban-risk-dialog";
 import { useState } from "react";
 import { KIND_LABEL } from "@/lib/post-schema";
