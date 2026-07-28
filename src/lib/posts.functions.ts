@@ -248,10 +248,10 @@ export const createPost = createServerFn({ method: "POST" })
     const { data: profile } = await supabase.from("profiles").select("banned_at").eq("id", userId).maybeSingle();
     if (profile?.banned_at) throw new Error("Your account is banned.");
 
-    // Executor requires admin
-    if (data.kind === "executor") {
+    // Executor and tutorial require admin
+    if (data.kind === "executor" || data.kind === "tutorial") {
       const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-      if (!isAdmin) throw new Error("Only admins can publish executors.");
+      if (!isAdmin) throw new Error(`Only admins can publish ${data.kind}s.`);
     }
 
     // Resolve game
